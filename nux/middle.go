@@ -8,7 +8,7 @@ import (
 func Logger() Middleware {
 	return func(next HandleFunc) HandleFunc {
 		return func(req *Request) Response {
-			nlog.INFOf(fmt.Sprintf("%s %s", req.Request().Method, req.Request().URL.Path))
+			nlog.INFOf(fmt.Sprintf("%s %s", req.Method(), req.Url()))
 			return next(req)
 		}
 	}

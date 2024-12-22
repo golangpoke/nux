@@ -19,11 +19,15 @@ func TestHello(t *testing.T) {
 func HandleTest() nux.HandleFunc {
 	return func(req *nux.Request) nux.Response {
 		nlog.INFOf("handle test")
+		data := struct {
+			Data string `json:"data"`
+		}{}
+		req.Bind(&data)
 		// if err := os.ErrNotExist; err != nil {
 		// 	nlog.Panic(err)
 		// }
 		return nux.Map{
-			"hello": "world",
+			"hello": data.Data,
 		}
 	}
 }

@@ -2,6 +2,7 @@ package nux
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 )
 
@@ -14,20 +15,23 @@ func newRequest(w http.ResponseWriter, r *http.Request) *Request {
 	return &Request{w: w, r: r}
 }
 
-func (r *Request) Writer() http.ResponseWriter {
-	return r.w
-}
-
-func (r *Request) Request() *http.Request {
-	return r.r
-}
-
-func (r *Request) JSON(code int, data any) {
+func (r *Request) sendJson(code int, data any) {
 	r.w.Header().Set("Content-Type", "application/json")
 	r.w.WriteHeader(code)
 	encoder := json.NewEncoder(r.w)
 	if err := encoder.Encode(data); err != nil {
 		http.Error(r.w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (r *Request) Bind(data any) {
+	body, err := io.ReadAll(r.r.Body)
+	if err != nil {
+		http.Error(r.w, err.Error(), http.StatusBadRequest)
+	}
+	err = json.Unmarshal(body, data)
+	if err != nil {
+		http.Error(r.w, err.Error(), http.StatusBadRequest)
 	}
 }
 

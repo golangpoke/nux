@@ -20,7 +20,7 @@ var HandleResponseFunc = func(req *Request, res Response) {
 	}
 	m["code"] = res.Code()
 	m["message"] = res.Message()
-	req.JSON(statusCode, m)
+	req.sendJson(statusCode, m)
 }
 
 func (n *nux) handleRouter(method, router string, handle HandleFunc) {
