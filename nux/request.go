@@ -3,6 +3,7 @@ package nux
 import (
 	"encoding/json"
 	"io"
+	"mime/multipart"
 	"net/http"
 )
 
@@ -24,15 +25,24 @@ func (r *Request) sendJson(code int, data any) {
 	}
 }
 
-func (r *Request) Bind(data any) {
+func (r *Request) Bind(data any) error {
 	body, err := io.ReadAll(r.r.Body)
 	if err != nil {
-		http.Error(r.w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	err = json.Unmarshal(body, data)
 	if err != nil {
-		http.Error(r.w, err.Error(), http.StatusBadRequest)
+		return err
 	}
+	return nil
+}
+
+func (r *Request) ParseMultiFileHeaders(maxMemory int64, key string) ([]*multipart.FileHeader, error) {
+	err := r.r.ParseMultipartForm(maxMemory)
+	if err != nil {
+		return nil, err
+	}
+	return r.r.MultipartForm.File[key], nil
 }
 
 func (r *Request) Method() string {
@@ -45,4 +55,12 @@ func (r *Request) Url() string {
 
 func (r *Request) PathValue(key string) string {
 	return r.r.PathValue(key)
+}
+
+func (r *Request) HeaderSet(key, value string) {
+	r.w.Header().Set(key, value)
+}
+
+func (r *Request) HeaderAdd(key, value string) {
+	r.w.Header().Add(key, value)
 }
