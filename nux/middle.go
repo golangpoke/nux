@@ -22,3 +22,13 @@ func Recovery() Middleware {
 		}
 	}
 }
+
+func CORS() Middleware {
+	return func(next HandleFunc) HandleFunc {
+		return func(req *Request) Response {
+			req.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+			req.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			return next(req)
+		}
+	}
+}

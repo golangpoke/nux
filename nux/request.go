@@ -8,20 +8,20 @@ import (
 )
 
 type Request struct {
-	w http.ResponseWriter
-	r *http.Request
+	Writer http.ResponseWriter
+	r      *http.Request
 }
 
 func newRequest(w http.ResponseWriter, r *http.Request) *Request {
-	return &Request{w: w, r: r}
+	return &Request{Writer: w, r: r}
 }
 
 func (r *Request) sendJson(code int, data any) {
-	r.w.Header().Set("Content-Type", "application/json")
-	r.w.WriteHeader(code)
-	encoder := json.NewEncoder(r.w)
+	r.Writer.Header().Set("Content-Type", "application/json")
+	r.Writer.WriteHeader(code)
+	encoder := json.NewEncoder(r.Writer)
 	if err := encoder.Encode(data); err != nil {
-		http.Error(r.w, err.Error(), http.StatusInternalServerError)
+		http.Error(r.Writer, err.Error(), http.StatusInternalServerError)
 	}
 }
 
@@ -55,12 +55,4 @@ func (r *Request) Url() string {
 
 func (r *Request) PathValue(key string) string {
 	return r.r.PathValue(key)
-}
-
-func (r *Request) HeaderSet(key, value string) {
-	r.w.Header().Set(key, value)
-}
-
-func (r *Request) HeaderAdd(key, value string) {
-	r.w.Header().Add(key, value)
 }

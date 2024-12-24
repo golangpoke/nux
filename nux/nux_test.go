@@ -13,18 +13,37 @@ import (
 func TestHello(t *testing.T) {
 	defer nlog.Recovery()
 	n := nux.New()
-	n.Use(nux.Recovery(), nux.Logger())
+	// n.Use(func(next nux.HandleFunc) nux.HandleFunc {
+	// 	return func(req *nux.Request) nux.Response {
+	// 		// req.Header("Access-Control-Allow-Origin", "*")
+	// 		// req.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	// 		// req.Header("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding")
+	// 		return next(req)
+	// 	}
+	// })
+	n.Use(nux.CORS(), nux.Recovery(), nux.Logger())
 	api := n.Group("/api")
+	cors := api.Group("/cors")
+	cors.POST("/test", test())
+
 	v1 := api.Group("/v1")
 	v1.POST("/test", HandleTest())
 	v1.POST("/upload", UploadTest())
 	n.Start(":8000")
 }
 
+func test() nux.HandleFunc {
+	return func(req *nux.Request) nux.Response {
+		return nux.Map{
+			"hello": "world",
+		}
+	}
+}
+
 func UploadTest() nux.HandleFunc {
 	return func(req *nux.Request) nux.Response {
 		nlog.INFOf("upload test")
-		req.HeaderSet("Access-Control-Allow-Origin", "*")
+		req.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
 		fileHeaders, err := req.ParseMultiFileHeaders(32<<20, "files")
 		if err != nil {
