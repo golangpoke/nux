@@ -23,21 +23,10 @@ func TestHello(t *testing.T) {
 	// })
 	n.Use(nux.CORS(), nux.Recovery(), nux.Logger())
 	api := n.Group("/api")
-	cors := api.Group("/cors")
-	cors.POST("/test", test())
 
-	v1 := api.Group("/v1")
-	v1.POST("/test", HandleTest())
-	v1.POST("/upload", UploadTest())
+	api.POST("/test", HandleTest())
+	api.All("/upload/stage", UploadTest())
 	n.Start(":8000")
-}
-
-func test() nux.HandleFunc {
-	return func(req *nux.Request) nux.Response {
-		return nux.Map{
-			"hello": "world",
-		}
-	}
 }
 
 func UploadTest() nux.HandleFunc {

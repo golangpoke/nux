@@ -53,6 +53,10 @@ func (n *nux) DELETE(router string, handle HandleFunc) {
 	n.handleRouter(http.MethodDelete, router, handle)
 }
 
+func (n *nux) All(router string, handle HandleFunc) {
+	n.handleRouter("", router, handle)
+}
+
 func (n *nux) Start(addr string) error {
 	return http.ListenAndServe(addr, n.mux)
 }
